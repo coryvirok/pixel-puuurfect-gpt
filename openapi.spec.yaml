@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
-  title: File Upload API
+  title: Pixel Puurfect GPT API
   version: 1.0.0
 servers:
-  - url: 'https://us-central1-personal-410701.cloudfunctions.net/pixel-puuurfect-create-site'
+  - url: 'https://pixel-puuurfect-gpt---2-9jr8qezw.uc.gateway.dev'
     description: Production server
 paths:
   /:

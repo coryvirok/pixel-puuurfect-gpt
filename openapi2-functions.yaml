@@ -1,0 +1,32 @@
+swagger: '2.0'
+info:
+  title: pixel-puuurfect-gpt Pixel Puuurfect API
+  version: 1.0.0
+  description: Pixel Puuurfect GPT API
+schemes:
+  - https
+produces:
+  - text/html
+paths:
+  /:
+    post:
+      summary: Upload static site HTML
+      operationId: createSite
+      description: Endpoint to upload index.html contents and associated files.
+      x-google-backend:
+        address: https://us-central1-personal-410701.cloudfunctions.net/pixel-puuurfect-create-site
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: Upload successful
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: X-API-Key
+    in: header
+

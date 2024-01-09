@@ -1,2 +1,4 @@
 *.key.json
 internal.md
+knowledge/
+system-prompt.md
