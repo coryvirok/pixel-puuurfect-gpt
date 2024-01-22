@@ -6,7 +6,7 @@ info:
 schemes:
   - https
 produces:
-  - text/html
+  - application/json
 paths:
   /:
     post:

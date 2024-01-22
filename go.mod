@@ -1,4 +1,4 @@
-imodule github.com/coryvirok/pp
+module github.com/coryvirok/pp
 
 go 1.21.1
 

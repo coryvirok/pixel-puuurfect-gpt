@@ -4,15 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
 	"golang.org/x/net/context"
 )
 
+type File struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
+}
+
 type FilePayload struct {
-	Index string            `json:"index"`
-	Files map[string]string `json:"files"`
+	Index  string  `json:"index"`
+	Styles string  `json:"styles"`
+	Files  []*File `json:"files"`
 }
 
 func HandleUpload(w http.ResponseWriter, r *http.Request) {
@@ -51,16 +58,28 @@ func HandleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	for filename, content := range payload.Files {
-		err := uploadFile(ctx, client, bucketName, folderID+"/"+filename, content)
+
+	stylesContent := payload.Styles
+	if len(stylesContent) > 0 {
+		err = uploadFile(ctx, client, bucketName, folderID+"/styles.css", stylesContent)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
 
-	url := fmt.Sprintf("https://storage.googleapis.com/%s/%s/index.html", bucketName, folderID)
-	fmt.Fprintf(w, url)
+	if len(payload.Files) > 0 {
+		for _, file := range payload.Files {
+			err := uploadFile(ctx, client, bucketName, folderID+"/"+file.Name, file.Content)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	resp := fmt.Sprintf("{\"link\": \"https://storage.googleapis.com/%s/%s/index.html\"}", bucketName, folderID)
+	fmt.Fprintf(w, resp)
 }
 
 func uploadFile(ctx context.Context, client *storage.Client, bucketName, objectName, content string) error {
@@ -70,6 +89,31 @@ func uploadFile(ctx context.Context, client *storage.Client, bucketName, objectN
 	w := obj.NewWriter(ctx)
 	defer w.Close()
 
+	contentType := getContentType(objectName)
+	if len(contentType) != 0 {
+		w.ObjectAttrs.ContentType = contentType
+	}
+
 	_, err := w.Write([]byte(content))
 	return err
+}
+
+func getContentType(filename string) string {
+	extension := filepath.Ext(filename)
+	switch extension {
+	case ".html":
+		return "text/html"
+	case ".css":
+		return "text/css"
+	case ".js":
+		return "application/javascript"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".png":
+		return "image/png"
+	case ".pdf":
+		return "application/pdf"
+	default:
+		return ""
+	}
 }
