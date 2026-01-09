@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: Pexels API
+  version: 1.0.0
+servers:
+  - url: https://api.pexels.com/v1
+    description: Pexels API Server
+paths:
+  /search:
+    get:
+      operationId: search_photos
+      summary: Search photos
+      description: Search for photos based on keywords.
+      x-openai-isConsequential: false
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+          description: Search query term or phrase.
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: Number of search results per page.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_results:
+                    type: integer
+                  page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  photos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        width:
+                          type: integer
+                        height:
+                          type: integer
+                        url:
+                          type: string
+                        photographer:
+                          type: string
+                        photographer_url:
+                          type: string
+                        avg_color:
+                          type: string
+                        src:
+                          type: object
+                          properties:
+                            original:
+                              type: string
+                              description: URL to the original photo.
+                            large2x:
+                              type: string
+                              description: 2x resized photo URL
+                            large:
+                              type: string
+                            medium:
+                              type: string
+                            small:
+                              type: string
+                            portrait:
+                              type: string
+                              description: URL to the photo cropped and resized to portrait dimensions.
+                            landscape:
+                              type: string
+                              description: URL to the photo cropped and resized to landscape dimensions.
+                            tiny:
+                              type: string
+                              description: URL to the photo resized to tiny dimensions.
+                        alt:
+                          type: string
+                  next_page:
+                    type: string
